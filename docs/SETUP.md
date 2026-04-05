@@ -1,5 +1,13 @@
 # BookForge — Setup Guide
 
+## Live Instance
+
+**Production:** https://bookforge.finwiser.org
+- 3 sample jobs with downloadable EPUBs pre-loaded
+- Creating jobs requires credentials: `demo` / password from admin
+- Max 3 user-created jobs per instance
+- AI powered by OpenAI GPT-4o ($1/job cost cap)
+
 ## System Requirements
 
 - Python 3.11+
@@ -12,74 +20,151 @@
 | WeasyPrint + Pango | PDF export | `brew install pango` (macOS) / `apt install libpango-1.0-0 libpangocairo-1.0-0` |
 | Calibre | EPUB polishing (optional) | `brew install --cask calibre` (macOS) |
 
-## Quick Start
+## Quick Start (Local Development)
 
 ```bash
 # Clone and install
-git clone <repo-url> && cd bookforge
+git clone https://github.com/Chandrachudasarma/bookforge.git && cd bookforge
+python3 -m venv .venv && source .venv/bin/activate
 pip install -e ".[dev]"
 
-# Copy environment config
-cp .env.example .env
-# Edit .env with your Anthropic API key
+# Configure AI provider
+cat > config/local.yaml << 'EOF'
+ai:
+  provider: "openai"
+  api_key: "sk-your-key"
+  model: "gpt-4o"
+EOF
 
 # Run tests (no AI calls — mocked)
-pytest tests/ -v --ignore=tests/test_integration
-
-# Run integration tests
-pytest tests/test_integration/ -v
+pytest tests/ -v
 
 # Convert a single file
-bookforge convert samples/input/test.html --format epub docx
+bookforge convert input.html --format epub docx
 
 # Start the web server
-bookforge serve --port 8000
-# Open http://localhost:8000 in your browser
+BOOKFORGE_ENV=development bookforge serve --port 8000
+# Open http://localhost:8000 (Swagger docs at /docs in dev mode)
 ```
 
-## Docker
+## Docker Deployment
 
 ```bash
-# Build
-docker build -t bookforge .
+# Build and run
+docker-compose up -d --build
 
-# Run
-docker-compose up
+# Generate sample jobs
+docker-compose exec app python scripts/generate_samples.py
 
-# Access at http://localhost:8000
+# Verify
+curl http://localhost:8000/health
 ```
 
-The Docker image includes all system dependencies (Tesseract, Pandoc, Pango).
+The Docker image uses a multi-stage build — runtime image contains only installed packages, not source code.
+
+## Production Deployment (Oracle Cloud)
+
+BookForge runs on the same server as Finwiser but is fully isolated:
+
+| | Finwiser | BookForge |
+|---|---|---|
+| Directory | `/srv/finwiser/platform/` | `/srv/bookforge/` |
+| Port | 5001 | 9090 |
+| Process | PM2 `finwiser-prod` | Docker container |
+| Domain | api.finwiser.org | bookforge.finwiser.org |
+
+### Deploy steps
+
+```bash
+ssh finwiser-prod
+cd /srv/bookforge
+git pull
+
+# Create/update config
+cat > config/local.yaml << 'EOF'
+auth:
+  demo_password: "your-password"
+ai:
+  provider: "openai"
+  api_key: "sk-your-key"
+  model: "gpt-4o"
+  cost_limit_per_job_usd: 1.0
+  rate_limit_rpm: 10
+EOF
+
+# Rebuild and restart
+sudo docker compose up -d --build
+
+# Regenerate sample jobs (if needed)
+sudo docker compose exec app python -c "..."  # see scripts/generate_samples.py
+```
+
+### Nginx config
+
+```nginx
+server {
+    listen 80;
+    server_name bookforge.finwiser.org;
+    client_max_body_size 100m;
+
+    location / {
+        proxy_pass http://127.0.0.1:9090;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+```
+
+SSL is handled by Cloudflare (DNS proxied).
 
 ## Configuration
 
 ### Config Layers (merge order)
 
 1. `config/default.yaml` — base defaults (committed)
-2. `config/local.yaml` — local overrides (git-ignored)
+2. `config/local.yaml` — local overrides (git-ignored, contains secrets)
 3. Environment variables — `BOOKFORGE_*` prefix
 4. Job-level overrides — per-job config from API/Excel
 
-### Key Environment Variables
-
-```bash
-BOOKFORGE_AI_API_KEY=your-anthropic-key    # Required for AI features
-BOOKFORGE_AI_PROVIDER=anthropic            # "anthropic" (default) or "openai"
-BOOKFORGE_DATA_DIR=data                    # Job storage directory
-BOOKFORGE_LOG_LEVEL=INFO                   # DEBUG | INFO | WARNING
-```
-
-### Column Mapping
-
-Excel column headers are mapped to internal fields via `config/columns.yaml`. Edit this file to match your spreadsheet without changing code:
+### Key Settings
 
 ```yaml
-mappings:
-  title: "Title"
-  author_name: "Author"
-  isbn: "ISBN"
-  # ... see config/columns.yaml for all 17 fields
+# config/local.yaml
+auth:
+  demo_password: ""          # Lock POST/DELETE endpoints
+
+ai:
+  provider: "openai"          # or "anthropic"
+  api_key: ""                 # API key (never commit)
+  model: "gpt-4o"             # or "claude-sonnet-4-6"
+  cost_limit_per_job_usd: 1.0 # Per-job cost cap
+  rate_limit_rpm: 10           # API calls per minute
+  max_chunk_tokens: 3000       # Rewrite chunk size
 ```
+
+### Environment Variables
+
+```bash
+BOOKFORGE_AI_API_KEY=your-key
+BOOKFORGE_AI_PROVIDER=openai
+BOOKFORGE_LOG_LEVEL=INFO
+BOOKFORGE_ENV=development      # Enables Swagger docs at /docs
+```
+
+## Security
+
+| Feature | Status |
+|---|---|
+| Basic auth on POST/DELETE | Enabled (username: `demo`) |
+| Per-user job limit | 3 max (excludes sample jobs) |
+| Swagger/OpenAPI docs | Disabled in production |
+| Error path stripping | Filesystem paths removed from API errors |
+| File download traversal | Path traversal blocked (403) |
+| Docker multi-stage build | Source code not in runtime image |
+| Config secrets | `local.yaml` git-ignored |
 
 ## CLI Commands
 
@@ -96,45 +181,39 @@ bookforge serve --port 8000 --reload
 
 ## API Endpoints
 
-| Method | Endpoint | Description |
-|---|---|---|
-| POST | `/api/v1/jobs` | Create job (upload files) |
-| GET | `/api/v1/jobs` | List all jobs |
-| GET | `/api/v1/jobs/{id}` | Job status + progress |
-| DELETE | `/api/v1/jobs/{id}` | Cancel a job |
-| GET | `/api/v1/jobs/{id}/download/{file}` | Download output |
-| GET | `/api/v1/templates` | List templates |
-| GET | `/api/v1/config` | Pipeline config |
-| GET | `/health` | Dependency check |
+| Method | Endpoint | Auth | Description |
+|---|---|---|---|
+| POST | `/api/v1/jobs` | Required | Create job (upload files) |
+| GET | `/api/v1/jobs` | Open | List all jobs |
+| GET | `/api/v1/jobs/{id}` | Open | Job status + progress |
+| DELETE | `/api/v1/jobs/{id}` | Required | Cancel a job |
+| GET | `/api/v1/jobs/{id}/download/{file}` | Open | Download output |
+| GET | `/api/v1/templates` | Open | List templates |
+| GET | `/api/v1/config` | Required | Pipeline config |
+| GET | `/health` | Open | Dependency check |
 
 ## Known Limitations
 
 ### OCR Equation Limitation
 
-Tesseract OCR cannot reconstruct mathematical equations from scanned images. When processing scanned PDFs or images containing equations:
+Tesseract OCR cannot reconstruct mathematical equations from scanned images. The OCR produces garbled text for math notation. This is by design — we do not attempt to fix OCR equation output.
 
-- The OCR produces garbled text for mathematical notation
-- The equation detector will NOT detect these as equations (they're not in LaTeX/MathML format)
-- The garbled text passes through to the output unchanged
+**Recommendation:** For math-heavy content, use digital source files (DOCX, HTML with MathML) rather than scanned PDFs.
 
-**This is by design.** We do not attempt to "fix" OCR equation output because:
-1. Heuristic cleanup would sometimes remove valid content
-2. The correct solution is to use digital source files for math-heavy content
-3. For scanned math content, use Mathpix or similar pre-processing before BookForge
+### PDF Table Extraction
 
-**Recommendation to clients:** For books with significant mathematical content, always provide digital source files (DOCX, LaTeX, HTML with MathML) rather than scanned PDFs.
+Tables in PDFs are extracted using PyMuPDF's `find_tables()` which detects tabular layouts. Complex tables with irregular merged cells may not extract perfectly. The extracted tables are tagged as protected blocks and survive AI rewriting.
+
+### AI Rewriting
+
+- The AI never sees protected blocks (tables, equations) — they're split out before rewriting and stitched back in afterward
+- GPT-4o tends to expand content more than requested (asked for 30%, may produce 100%)
+- Cost is capped per job ($1.0 default) to prevent runaway spending
 
 ### WeasyPrint Font Resolution
 
-WeasyPrint resolves `url()` in CSS relative to `base_url`. The template system sets `base_url` to the template directory automatically. If fonts fail to load:
-
-1. Check that font files exist in `templates/{name}/fonts/`
-2. Check that CSS `@font-face` uses `url('fonts/FontName.ttf')` (relative path)
-3. WeasyPrint falls back to system fonts silently — no error is raised
+WeasyPrint resolves font `url()` relative to `base_url`. The template system sets this automatically. If fonts fail to load, WeasyPrint falls back to system fonts silently.
 
 ### Calibre Polish
 
-Calibre's `ebook-polish` is optional. If not installed:
-- EPUB output is still valid
-- Some e-reader compatibility improvements are skipped
-- On macOS, BookForge checks both `PATH` and `/Applications/calibre.app/Contents/MacOS/`
+Optional. If not installed, EPUB output is still valid but some e-reader compatibility improvements are skipped.

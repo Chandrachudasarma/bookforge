@@ -1,6 +1,7 @@
 # BookForge — Expert Panel: Scalability Review
 
 **Date:** 2026-04-05
+**Status:** System deployed at https://bookforge.finwiser.org
 **Focus:** Scalability against client requirements
 **Mode:** Critique
 **Panel:** Nygard (production systems), Newman (distributed systems), Fowler (architecture), Hightower (cloud-native)

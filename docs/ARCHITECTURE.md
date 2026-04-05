@@ -1,8 +1,8 @@
 # BookForge — Architecture Design
 
-**Version:** 1.0
+**Version:** 2.0
 **Date:** 2026-04-05
-**Status:** Draft
+**Status:** Implemented and Deployed — https://bookforge.finwiser.org
 
 ---
 

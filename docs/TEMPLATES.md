@@ -118,7 +118,9 @@ Applied via WeasyPrint on top of styles.css. Use for:
 
 ## Template Selection
 
+- **Web UI:** Template dropdown at https://bookforge.finwiser.org
 - **CLI:** `--template academic` or `--template modern`
 - **API:** `config.template` field in the create job request
+- **API discovery:** `GET /api/v1/templates` lists all available templates
 - **Excel batch:** `Template` column in the metadata sheet
 - **Default:** `academic` (set in `config/default.yaml`)

@@ -1,8 +1,8 @@
 # BookForge — Requirements Document
 
-**Version:** 1.0
+**Version:** 2.0
 **Date:** 2026-04-05
-**Status:** Draft
+**Status:** Implemented — see IMPLEMENTATION.md for build status
 
 ---
 

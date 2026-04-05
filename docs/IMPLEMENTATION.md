@@ -1,8 +1,8 @@
 # BookForge — Implementation Guide
 
-**Version:** 1.1
+**Version:** 2.0
 **Date:** 2026-04-05
-**Status:** In Progress
+**Status:** Deployed — https://bookforge.finwiser.org
 
 ## Implementation Status
 
