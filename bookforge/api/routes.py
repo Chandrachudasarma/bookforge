@@ -67,6 +67,9 @@ def _get_manager() -> JobManager:
 # ---------------------------------------------------------------------------
 
 
+_MAX_JOBS_PER_USER = 3
+
+
 @router.post("/jobs", response_model=CreateJobResponse, tags=["Jobs"], dependencies=[Depends(require_auth)])
 async def create_job(
     files: list[UploadFile] = File(...),
@@ -79,6 +82,11 @@ async def create_job(
     is spawned to process them.
     """
     manager = _get_manager()
+
+    # Enforce per-user job limit (exclude pre-loaded samples)
+    existing = [j for j in manager.list_jobs() if not j.job_id.startswith("sample_")]
+    if len(existing) >= _MAX_JOBS_PER_USER:
+        raise HTTPException(429, f"Job limit reached ({_MAX_JOBS_PER_USER} max). Contact the administrator.")
 
     # Parse metadata and config from JSON form fields
     try:

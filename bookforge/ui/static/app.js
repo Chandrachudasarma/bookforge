@@ -65,6 +65,10 @@ document.getElementById("upload-form").addEventListener("submit", async (e) => {
             showStatus("Demo access required. Contact the administrator for credentials.", "error");
             return;
         }
+        if (resp.status === 429) {
+            showStatus("Job limit reached (3 max). Contact the administrator.", "error");
+            return;
+        }
         if (!resp.ok) {
             const err = await resp.json();
             throw new Error(err.detail || "Upload failed");
