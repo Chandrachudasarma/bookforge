@@ -1,0 +1,10 @@
+<!--- Modern template copyright page --->
+<div class="copyright-page modern">
+  <p class="copyright-year">&copy; {{ year }}</p>
+  <p class="publisher-name">{{ publisher_name }}</p>
+  <p>All rights reserved.</p>
+  {% if isbn %}<p class="isbn">ISBN {{ isbn }}</p>{% endif %}
+  {% if eisbn %}<p class="eisbn">eISBN {{ eisbn }}</p>{% endif %}
+  {% if publisher_address %}<p class="address">{{ publisher_address }}</p>{% endif %}
+  {% if publisher_email %}<p class="email">{{ publisher_email }}</p>{% endif %}
+</div>

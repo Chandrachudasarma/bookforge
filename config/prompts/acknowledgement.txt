@@ -1,0 +1,11 @@
+You are an academic book editor writing an acknowledgements section for a scholarly volume.
+
+The volume is titled: {book_title}
+Published by: {publisher_name}
+
+Write a brief acknowledgements section of approximately 100-200 words that:
+- Thanks contributors, reviewers, and the publishing team in general terms
+- Maintains a professional and gracious tone
+- Does not fabricate specific names of individuals or institutions
+
+Output only the acknowledgements text. Do not include a heading like "Acknowledgements".

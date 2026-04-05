@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>BookForge</title>
+    <link rel="stylesheet" href="/static/style.css?v=4">
+</head>
+<body>
+    <header>
+        <h1>BookForge</h1>
+        <p class="subtitle">Automated publishing pipeline</p>
+    </header>
+
+    <main>
+        <!-- Upload section -->
+        <section id="upload" class="card">
+            <h2>New Job</h2>
+            <form id="upload-form" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label for="files">Manuscript files</label>
+                    <input type="file" id="files" name="files" multiple
+                           accept=".html,.htm,.md,.txt,.docx,.pdf,.epub,.tiff,.tif,.png,.jpg,.jpeg,.bmp">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="title">Title (optional)</label>
+                        <input type="text" id="title" name="title" placeholder="AI-generated if blank">
+                    </div>
+                    <div class="form-group">
+                        <label for="author">Author</label>
+                        <input type="text" id="author" name="author" placeholder="Author name">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="template">Template</label>
+                        <select id="template" name="template">
+                            <option value="academic">Academic</option>
+                            <option value="modern">Modern</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="rewrite_percent">Rewrite: <span id="rewrite_value">0%</span></label>
+                        <input type="range" id="rewrite_percent" name="rewrite_percent"
+                               value="0" min="0" max="100" step="5">
+                    </div>
+                    <div class="form-group">
+                        <label for="output_formats">Output formats</label>
+                        <select id="output_formats" name="output_formats" multiple>
+                            <option value="epub" selected>EPUB</option>
+                            <option value="docx">DOCX</option>
+                            <option value="pdf">PDF</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>AI Generation</label>
+                        <label class="checkbox"><input type="checkbox" id="gen_preface"> Generate Preface</label>
+                        <label class="checkbox"><input type="checkbox" id="gen_ack"> Generate Acknowledgement</label>
+                    </div>
+                </div>
+                <button type="submit" id="submit-btn">Start Job</button>
+            </form>
+            <div id="upload-status" class="status-msg" hidden></div>
+        </section>
+
+        <!-- Jobs list -->
+        <section id="jobs" class="card">
+            <h2>Jobs</h2>
+            <div id="jobs-list">
+                <p class="empty">No jobs yet.</p>
+            </div>
+        </section>
+    </main>
+
+    <script src="/static/app.js?v=4"></script>
+</body>
+</html>

@@ -1,0 +1,10 @@
+display_name: "Modern"
+description: "Clean contemporary design — sans-serif fonts, generous whitespace, minimal decoration."
+font_family: "'Helvetica Neue', Arial, sans-serif"
+font_size: "10.5pt"
+line_height: "1.6"
+page_margins:
+  top: "2.5cm"
+  bottom: "2.5cm"
+  left: "2cm"
+  right: "2cm"

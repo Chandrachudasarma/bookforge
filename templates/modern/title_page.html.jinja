@@ -1,0 +1,7 @@
+<!--- Modern template title page --->
+<div class="title-page modern">
+  <h1 class="book-title">{{ title }}</h1>
+  {% if subtitle %}<p class="subtitle">{{ subtitle }}</p>{% endif %}
+  <p class="authors">{{ authors | join(", ") }}</p>
+  <p class="publisher">{{ publisher_name }}</p>
+</div>

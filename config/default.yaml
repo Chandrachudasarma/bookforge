@@ -1,0 +1,63 @@
+pipeline:
+  intermediate_format: "html"
+  temp_dir: "/tmp/bookforge"
+  max_file_size_mb: 500
+  per_file_timeout_seconds: 300
+  max_concurrent_files: 4
+  max_memory_per_file_mb: 512
+  txt_ai_structure: false
+
+ocr:
+  engine: "tesseract"
+  language: "eng"
+  dpi: 300
+  max_concurrent_pages: 2
+  page_segmentation_mode: 6
+
+ai:
+  provider: "anthropic"
+  model: "claude-sonnet-4-6"
+  max_tokens: 4096
+  temperature: 0.7
+  prompts_dir: "config/prompts"
+  rate_limit_rpm: 60
+  cost_limit_per_job_usd: 50.0
+  max_chunk_tokens: 3000
+  context_overlap_tokens: 200
+
+export:
+  default_formats:
+    - "epub"
+  epub:
+    version: "3.0"
+    validate: true
+    calibre_polish: true
+    equation_mode: "image"
+  docx:
+    generate_toc: true
+    headers_footers: true
+  pdf:
+    engine: "weasyprint"
+    dpi: 300
+    pdf_a: false
+
+templates:
+  default: "academic"
+  directory: "templates"
+
+worker:
+  mode: "subprocess"
+  state_dir: "data/jobs"
+  cleanup_after_hours: 24
+
+metadata:
+  columns_config: "config/columns.yaml"
+
+auth:
+  enabled: true
+  demo_password: ""  # set in local.yaml or env BOOKFORGE_AUTH_DEMO_PASSWORD
+
+logging:
+  level: "INFO"
+  file: "logs/bookforge.log"
+  format: "json"

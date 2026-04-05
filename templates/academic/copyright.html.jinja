@@ -1,0 +1,10 @@
+<!--- Academic template copyright page --->
+<div class="copyright-page">
+  <p>Copyright &copy; {{ year }} {{ publisher_name }}</p>
+  <p>All rights reserved. No part of this publication may be reproduced, stored in a retrieval system, or transmitted in any form or by any means without the prior written permission of the publisher.</p>
+  {% if isbn %}<p>ISBN: {{ isbn }}</p>{% endif %}
+  {% if eisbn %}<p>eISBN: {{ eisbn }}</p>{% endif %}
+  {% if publisher_address %}<p>{{ publisher_address }}</p>{% endif %}
+  {% if publisher_email %}<p>{{ publisher_email }}</p>{% endif %}
+  <p>Published by {{ publisher_name }}</p>
+</div>

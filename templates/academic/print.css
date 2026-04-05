@@ -1,0 +1,39 @@
+/* Academic template — print.css
+ * PDF-only rules applied via WeasyPrint on top of styles.css.
+ * Page geometry, running headers/footers, orphan/widow control.
+ */
+
+@page {
+    size: A5;
+    margin: 2cm 2cm 2.5cm 2.5cm;
+
+    @bottom-center {
+        content: counter(page);
+        font-size: 9pt;
+        font-family: Georgia, serif;
+    }
+}
+
+@page :first {
+    @bottom-center { content: none; }
+}
+
+/* Orphan/widow control */
+p {
+    orphans: 3;
+    widows: 3;
+}
+
+h1, h2, h3 {
+    page-break-after: avoid;
+}
+
+/* Force chapters to start on a new page */
+section.bf-chapter {
+    page-break-before: always;
+}
+
+/* Avoid page breaks inside tables and figures */
+table, figure {
+    page-break-inside: avoid;
+}

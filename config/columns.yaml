@@ -1,0 +1,19 @@
+# Maps canonical field names to Excel column headers.
+# Edit this file to match your spreadsheet without changing any code.
+mappings:
+  title: "Title"
+  author_name: "Author"
+  isbn: "ISBN"
+  eisbn: "eISBN"
+  publisher_name: "Publisher"
+  publisher_address: "Publisher Address"
+  publisher_email: "Publisher Email"
+  year: "Year"
+  language: "Language"
+  input_files: "Input Files"
+  template: "Template"
+  rewrite_percent: "Rewrite %"
+  generate_preface: "Generate Preface"
+  generate_acknowledgement: "Generate Acknowledgement"
+  output_formats: "Output Formats"
+  chapter_order: "Chapter Order"

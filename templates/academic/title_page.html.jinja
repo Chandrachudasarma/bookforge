@@ -1,0 +1,8 @@
+<!--- Academic template title page --->
+<div class="title-page">
+  <h1 class="book-title">{{ title }}</h1>
+  {% if subtitle %}<p class="subtitle">{{ subtitle }}</p>{% endif %}
+  <p class="authors">{{ authors | join(", ") }}</p>
+  <p class="publisher">{{ publisher_name }}</p>
+  {% if year %}<p class="year">{{ year }}</p>{% endif %}
+</div>

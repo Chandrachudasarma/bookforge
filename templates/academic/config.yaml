@@ -1,0 +1,10 @@
+display_name: "Academic"
+description: "Traditional scholarly publishing style — serif fonts, formal layout, chapter breaks."
+font_family: "'Crimson Text', Georgia, serif"
+font_size: "11pt"
+line_height: "1.5"
+page_margins:
+  top: "2cm"
+  bottom: "2cm"
+  left: "2.5cm"
+  right: "2cm"

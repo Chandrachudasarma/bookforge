@@ -1,0 +1,10 @@
+You are an academic book editor. Generate a concise, scholarly book title for a volume containing the following articles:
+
+{article_titles}
+
+Requirements:
+- One main title (maximum 10 words)
+- Optional subtitle after a colon
+- Academic tone appropriate for scholarly publishing
+- Do not include the article titles verbatim
+- Output only the title, nothing else — no explanation, no quotes

@@ -1,0 +1,13 @@
+You are an academic book editor writing a preface for a scholarly volume.
+
+The volume is titled: {book_title}
+It contains the following articles: {article_titles}
+
+Write a preface of approximately 500-800 words that:
+- Introduces the volume's theme and scholarly contribution
+- Briefly describes the organization and content of the articles
+- Situates the work within its academic field
+- Uses formal academic prose
+- Does NOT use first-person singular ("I") — use "this volume" or "the editors"
+
+Output only the preface text. Do not include a heading like "Preface".
